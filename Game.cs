@@ -2,6 +2,8 @@
 
 using RogueGame.Core;
 using RogueGame.Systems;
+using RogueSharp.Random;
+using System.Security.Cryptography.X509Certificates;
 
 
 namespace RogueGame
@@ -35,6 +37,15 @@ namespace RogueGame
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
 
+        // New render required flag
+        private static bool _renderRequired = true;
+
+        // Interface (as a singleton) to generate random numbers 
+        public static IRandom Random { get; private set; }
+
+        // Command system
+        public static CommandSystem CommandSystem { get; private set; }
+
         // Dungeon map
         public static DungeonMap DungeonMap { get; private set; }
 
@@ -44,10 +55,15 @@ namespace RogueGame
 
         static void Main()
         {
+            // Get the seed for random number generator, based off current time
+            int seed = (int)DateTime.Now.Ticks;
+            // Use the seed to create a random generator engine
+            Random = new DotNetRandom(seed);
+
             // Main font file name
             string fontFileName = "font8x8.png";
             // Title of the game
-            string consoleTitle = "Rogue Game C#";
+            string consoleTitle = $"Rogue Game C# (Seed: {seed})";
             // Initialize the main console using main font with size 8x8, scale 1
             _mainConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight,
                 8, 8, 1f, consoleTitle);
@@ -78,6 +94,9 @@ namespace RogueGame
             // Create the player
             Player = new Player();
 
+            // Instantiate command system
+            CommandSystem = new CommandSystem();
+
             // Setup map generetor and create a new map
             MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
             DungeonMap = mapGenerator.CreateMap();
@@ -92,12 +111,43 @@ namespace RogueGame
         // Handle Update events
         private static void OnRootConsoleUpdate(object sender, UpdateEventArgs args)
         {
-            
+            // Player act flag
+            bool playerAct = false;
+            // Get which key is pressed
+            RLKeyPress keyPress = _mainConsole.Keyboard.GetKeyPress();
+
+            // If a key is pressed
+            if (keyPress != null)
+            {
+                // On escape, quit
+                if (keyPress.Key == RLKey.Escape)
+                    _mainConsole.Close();
+                // Move up
+                else if (keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
+                    playerAct = CommandSystem.MovePlayer(Direction.Up);
+                // Move down
+                else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
+                    playerAct = CommandSystem.MovePlayer(Direction.Down);
+                // Move left
+                else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
+                    playerAct = CommandSystem.MovePlayer(Direction.Left);
+                // Move right
+                else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
+                    playerAct = CommandSystem.MovePlayer(Direction.Right);
+            }
+
+            // If player acted, rendering is required
+            if (playerAct)
+                _renderRequired = true;
         }
 
         // Handle Render events
         private static void OnRootConsoleRender(object sender, UpdateEventArgs args)
         {
+            // If rendering is not required, continue the game loop
+            if (!_renderRequired)
+                return;
+
             // Blit the sub consoles
             RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _mainConsole, 0, _inventoryHeight);
             RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _mainConsole, _mapWidth, 0);
@@ -112,6 +162,9 @@ namespace RogueGame
 
             // Draw the root console
             _mainConsole.Draw();
+
+            // Set rendering required to false, since everything needed is rendered
+            _renderRequired = false;
         }
     }
 }

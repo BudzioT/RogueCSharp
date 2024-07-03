@@ -12,6 +12,16 @@ namespace RogueGame.Core
     // Dungeon map, extended version of basic RogueSharp map
     public class DungeonMap : Map
     {
+        // Rooms of dungeon as rectangles
+        public List<Rectangle> Rooms;
+
+        // Initialize the dungeon map
+        public DungeonMap()
+        {
+            // Initialize list of rooms
+            Rooms = new List<Rectangle>();
+        }
+
         // Draw all the symbols and colors to the map console
         public void Draw(RLConsole mapConsole)
         {
@@ -78,6 +88,19 @@ namespace RogueGame.Core
             // Place the actor only when cell is walkable
             if (GetCell(x, y).IsWalkable)
             {
+                // Set the tile, that actor was on, as walkable
+                SetIsWalkable(actor.X, actor.Y, true);
+                // Update actor's position
+                actor.X = x;
+                actor.Y = y;
+
+                // Set the actor's cell as not walkable (since he is on it)
+                SetIsWalkable(x, y, false);
+
+                // Update the FOV, if actor is a player
+                if (actor is Player)
+                    UpdatePlayerFOV();
+
                 return true;
             }
 
@@ -88,7 +111,7 @@ namespace RogueGame.Core
         public void SetIsWalkable(int x, int y, bool isWalkable)
         {
             // Get the cell by position
-            Cell cell = GetCell(x, y);
+            Cell cell = (Cell)GetCell(x, y);
             // Set its properties
             SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
         }
