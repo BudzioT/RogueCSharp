@@ -34,9 +34,6 @@ namespace RogueGame.Systems
         // Draw all messages to the console
         public void Draw(RLConsole console)
         {
-            // Clear any old messages
-            console.Clear();
-
             string[] lines = _lines.ToArray();
             // Print all the messages
             for (int i = 0; i < lines.Length; i++)

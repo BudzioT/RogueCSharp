@@ -137,7 +137,9 @@ namespace RogueGame
         // Handle Render events
         private static void OnRootConsoleRender(object sender, UpdateEventArgs args)
         {
-            // If rendering is not required, continue the game loop
+            if (_renderRequired)
+                _statConsole.Clear();
+            //If rendering is not required, continue the game loop
             //if (!_renderRequired)
             //    return;
 
@@ -148,7 +150,7 @@ namespace RogueGame
             RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _mainConsole, 0, 0);
 
             // Draw the dungeon map
-            DungeonMap.Draw(_mapConsole);
+            DungeonMap.Draw(_mapConsole, _statConsole);
 
             // Draw the player
             Player.Draw(_mapConsole, DungeonMap);

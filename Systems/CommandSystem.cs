@@ -1,4 +1,5 @@
-﻿using RogueGame.Core;
+﻿using OpenTK.Graphics.ES11;
+using RogueGame.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,31 @@ namespace RogueGame.Systems
             // Try to move the player into new position
             if (Game.DungeonMap.SetActorPosition(Game.Player, posX, posY)) 
                 return true;
+
+            // Try to get monster at player's cell
+            Monster monster = Game.DungeonMap.GetMonsterAt(posX, posY);
+            // If there is one, make the player attack it
+            if (monster != null)
+            {
+                Attack(Game.Player, monster);
+                return true;
+            }
             return false;
+        }
+
+        // Combat system
+        public void Attack(Actor attacker, Actor defender)
+        {
+            StringBuilder attackMsg = new StringBuilder();
+            StringBuilder defMsg = new StringBuilder();
+
+            
+        }
+
+        // Attack action 
+        private static int ResolveAttack(Actor attacker, Actor defender, StringBuilder msg)
+        {
+            int hits = 0;
         }
     }
 }

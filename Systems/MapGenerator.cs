@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using RogueGame.Core;
+using RogueGame.Monsters;
 using RogueSharp;
+using RogueSharp.DiceNotation;
 using RogueSharp.MapCreation;
 
 
@@ -99,6 +101,9 @@ namespace RogueGame.Systems
             // Place the player in first of the newly created rooms
             PlacePlayer();
 
+            // Place the monsters
+            PlaceMonsters();
+
             // Return the created map
             return _map;
         }
@@ -146,6 +151,35 @@ namespace RogueGame.Systems
             // Go from the top cell to the bottom one and create a tunnel
             for (int y = Math.Min(startY, endY); y <= Math.Max(startY, endY); y++)
                 _map.SetCellProperties(posX, y, true, true);
+        }
+
+        // Place random amount of monsters in every room at random cells
+        private void PlaceMonsters()
+        {
+            // Go through each room on the map
+            foreach (var room in _map.Rooms)
+            {
+                // Roll the dice, there is 60% to get monsters into the room
+                if (Dice.Roll("1D10") < 7)
+                {
+                    // Generate between 1 to 4 monsters
+                    var numberOfMonsters = Dice.Roll("1D4");
+                    // Place every monster at random location
+                    for (int i = 0; i < numberOfMonsters; i++)
+                    {
+                        // Get random walkable location to place the enemy at
+                        Point? randomRoomLocation = _map.GetRandomWalkableLocation(room);
+                        // If getting random location was succesful, add the enemy to this location
+                        if (randomRoomLocation.HasValue)
+                        {
+                            var monster = KEnemy.Create(1);
+                            monster.X = randomRoomLocation.Value.X;
+                            monster.Y = randomRoomLocation.Value.Y;
+                            _map.AddMonster(monster);
+                        }
+                    }
+                }
+            }
         }
     }
 }

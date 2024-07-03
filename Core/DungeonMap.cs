@@ -28,15 +28,30 @@ namespace RogueGame.Core
         }
 
         // Draw all the symbols and colors to the map console
-        public void Draw(RLConsole mapConsole)
+        public void Draw(RLConsole mapConsole, RLConsole statConsole)
         {
-            // Clear the map
-            mapConsole.Clear();
-
             // Set each symbol based on the cell state
             foreach (Cell cell in GetAllCells())
             {
                 SetConsoleSymbolCell(mapConsole, cell);
+            }
+
+            // Draw every monster that exists on the map
+            foreach (Monster monster in _monsters)
+            {
+                monster.Draw(mapConsole, this);
+            }
+
+            // Index to help with placement of healthbars
+            int i = 0;
+            // Go through every monster on the map and draw it
+            foreach (Monster monster in _monsters)
+            {
+                monster.Draw(mapConsole, this);
+
+                // If monster is in player's FOV, draw its healthbar
+                if (IsInFov(monster.X, monster.Y))
+                    monster.DrawStats(statConsole, i++);
             }
         }
 
@@ -140,24 +155,55 @@ namespace RogueGame.Core
         }
 
         // Get a random walkable location in a room
-        public Point GetRandomWalkableLocation(Rectangle room)
+        public Point? GetRandomWalkableLocation(Rectangle room)
         {
+            // If there is any walkable cell, search for a random one
             if (IsRoomWalkable(room))
             {
-
+                // Search for a location 100 times
+                for (int i = 0; i < 100; i++)
+                {
+                    // Get random location in the room
+                    int x = Game.Random.Next(1, room.Width - 2) + room.X;
+                    int y = Game.Random.Next(1, room.Height - 2) + room.Y;
+                    // If there is a walkable space, return the location
+                    if (IsWalkable(x, y))
+                        return new Point(x, y);
+                }
             }
+            // There is no walkable space, return null
+            return null;
         }
 
         // Return if the room is walkable
-        public bool isRoomWalkable(Rectangle room)
+        public bool IsRoomWalkable(Rectangle room)
         {
+            // Go through every row in a room, not counting the walls (starting at 1 up to width - 2, because of the left and right wall)
             for (int x = 1; x <= room.Width - 2; x++)
             {
+                // Go through each cell in a row, not counting the walls
                 for (int y = 1; y <= room.Height - 2; y++)
                 {
-
+                    // If the cell is walkable, return true
+                    if (IsWalkable(x + room.X, y + room.Y))
+                        return true;
                 }
             }
+            // No cells in the room are walkable, return false
+            return false;
+        }
+
+        // Remove the monster
+        public void RemoveMonster(Monster monster)
+        {
+            _monsters.Remove(monster);
+            // Set cell back to walkable
+            SetIsWalkable(monster.X, monster.Y, true);
+        }
+
+        public Monster GetMonsterAt(int x, int y)
+        {
+            return _monsters.FirstOrDefault(m => m.X == x && m.Y == y);
         }
     }
 }
