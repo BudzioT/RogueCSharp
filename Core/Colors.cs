@@ -24,6 +24,12 @@ namespace RogueGame.Core
         public static RLColor WallBgFov = Swatch.Secondary[3];
         public static RLColor WallFov = Swatch.Secondary[1];
 
+        // Door colors
+        public static RLColor DoorBackground = Swatch.Complement[4];
+        public static RLColor Door = Swatch.Complement[1];
+        public static RLColor DoorBgFov = Swatch.Complement[3];
+        public static RLColor DoorFov = Swatch.Complement[0];
+            
         // Text colors
         public static RLColor TextHeader = RLColor.White;
         public static RLColor Text = Swatch.Light;

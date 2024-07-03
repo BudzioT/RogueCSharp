@@ -35,8 +35,8 @@ namespace RogueGame.Core
             statConsole.Print(2, posY, $": {Name}", Swatch.Light);
         }
 
-        // Perform action
-        public void PerformAction(CommandSystem cmdSystem)
+        // Perform an action
+        public virtual void PerformAction(CommandSystem cmdSystem)
         {
             var behaviour = new BasicMoveAttack();
             behaviour.Act(this, cmdSystem);

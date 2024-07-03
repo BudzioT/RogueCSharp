@@ -10,7 +10,7 @@ using RogueSharp;
 
 namespace RogueGame.Core
 {
-    public class Actor : IActor, IDrawable
+    public class Actor : IActor, IDrawable, IScheduable
     {
         // IActor variables
         private string _name;
@@ -159,6 +159,15 @@ namespace RogueGame.Core
         public char Symbol { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
+
+        // IScheduable variables
+        public int Time
+        {
+            get
+            {
+                return Speed;
+            }
+        }
 
         // Draw the Actor
         public void Draw(RLConsole console, IMap map)

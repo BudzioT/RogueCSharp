@@ -1,5 +1,7 @@
 ﻿using OpenTK.Graphics.ES11;
 using RogueGame.Core;
+using RogueGame.Interfaces;
+using RogueSharp;
 using RogueSharp.DiceNotation;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,9 @@ namespace RogueGame.Systems
     // Command manager
     public class CommandSystem
     {
+        // Player turn flag
+        public bool PlayerTurn { get; set; }
+
         public bool MovePlayer(Direction direction)
         {
             // Copy player's position
@@ -167,6 +172,49 @@ namespace RogueGame.Systems
             {
                 Game.DungeonMap.RemoveMonster((Monster)defender);
                 Game.MessageLog.Add($"  {defender.Name} was annihilated, dropped {defender.Gold} gold");
+            }
+        }
+
+        // End the player's turn
+        public void EndPlayerTurn()
+        {
+            PlayerTurn = false;
+        }
+
+        // Move the monster, attack if it is possible
+        public void MoveMonster(Monster monster, Cell cell)
+        {
+            // If monster can't move anymore
+            if (!Game.DungeonMap.SetActorPosition(monster, cell.X, cell.Y))
+            {
+                // Check if there is a player, if so, attack him
+                if (Game.Player.X == cell.X && Game.Player.Y == cell.Y)
+                    Attack(monster, Game.Player);
+            }
+        }
+
+        // Activate the monster turn
+        public void ActivateMonsters()
+        {
+            // Get the turn schedule
+            IScheduable scheduable = Game.SchedulingSystem.Get();
+            // If it's players turn, set it and add player to the schedule
+            if (scheduable is Player)
+            {
+                PlayerTurn = true;
+                Game.SchedulingSystem.Add(Game.Player);
+            }
+            // Otherwise perform monster action and add it to the schedule
+            else
+            {
+                Monster monster = scheduable as Monster;
+                if (monster != null)
+                {
+                    monster.PerformAction(this);
+                    Game.SchedulingSystem.Add(monster);
+                }
+                // Deactivate monsters until player's turn is over
+                ActivateMonsters();
             }
         }
     }

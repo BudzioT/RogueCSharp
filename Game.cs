@@ -43,6 +43,9 @@ namespace RogueGame
         // Interface (as a singleton) to generate random numbers 
         public static IRandom Random { get; private set; }
 
+        // Scheduling system
+        public static SchedulingSystem SchedulingSystem { get; private set; }
+
         // Command system
         public static CommandSystem CommandSystem { get; private set; }
 
@@ -91,6 +94,9 @@ namespace RogueGame
             // Set up handler for Render events
             _mainConsole.Update += OnRootConsoleRender;
 
+            // Instantiate scheduling system
+            SchedulingSystem = new SchedulingSystem();
+
             // Instantiate command system
             CommandSystem = new CommandSystem();
 
@@ -113,24 +119,39 @@ namespace RogueGame
             // Get which key is pressed
             RLKeyPress keyPress = _mainConsole.Keyboard.GetKeyPress();
 
-            // If a key is pressed
-            if (keyPress != null)
+            // If this is the player's turn, let him move
+            if (CommandSystem.PlayerTurn) 
             {
-                // On escape, quit
-                if (keyPress.Key == RLKey.Escape)
-                    _mainConsole.Close();
-                // Move up
-                else if (keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
-                    playerAct = CommandSystem.MovePlayer(Direction.Up);
-                // Move down
-                else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
-                    playerAct = CommandSystem.MovePlayer(Direction.Down);
-                // Move left
-                else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
-                    playerAct = CommandSystem.MovePlayer(Direction.Left);
-                // Move right
-                else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
-                    playerAct = CommandSystem.MovePlayer(Direction.Right);
+                // If a key is pressed
+                if (keyPress != null)
+                {
+                    // On escape, quit
+                    if (keyPress.Key == RLKey.Escape)
+                        _mainConsole.Close();
+                    // Move up
+                    else if (keyPress.Key == RLKey.Up || keyPress.Key == RLKey.W)
+                        playerAct = CommandSystem.MovePlayer(Direction.Up);
+                    // Move down
+                    else if (keyPress.Key == RLKey.Down || keyPress.Key == RLKey.S)
+                        playerAct = CommandSystem.MovePlayer(Direction.Down);
+                    // Move left
+                    else if (keyPress.Key == RLKey.Left || keyPress.Key == RLKey.A)
+                        playerAct = CommandSystem.MovePlayer(Direction.Left);
+                    // Move right
+                    else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
+                        playerAct = CommandSystem.MovePlayer(Direction.Right);
+                }
+
+                if (playerAct)
+                {
+                    _renderRequired = true;
+                    CommandSystem.EndPlayerTurn();
+                }
+            }
+            // Otherwise move the monsters, render surface again
+            else
+            {
+                CommandSystem.ActivateMonsters();
                 _renderRequired = true;
             }
         }
@@ -138,38 +159,37 @@ namespace RogueGame
         // Handle Render events
         private static void OnRootConsoleRender(object sender, UpdateEventArgs args)
         {
-            // If rendering is required, clear the old things
+            // If render is required, draw everything again
             if (_renderRequired)
             {
-                //_mapConsole.Clear();
+                // Clear the old things
+                _mapConsole.Clear();
                 _statConsole.Clear();
                 _messageConsole.Clear();
+
+                // Draw the dungeon map
+                DungeonMap.Draw(_mapConsole, _statConsole);
+
+                // Draw the player
+                Player.Draw(_mapConsole, DungeonMap);
+
+                // Draw the player's stats
+                Player.DrawStats(_statConsole);
+
+                // Draw the message log
+                MessageLog.Draw(_messageConsole);
+
+                // Blit the sub consoles
+                RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _mainConsole, 0, _inventoryHeight);
+                RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _mainConsole, _mapWidth, 0);
+                RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight, _mainConsole, 0, _screenHeight - _messageHeight);
+                RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _mainConsole, 0, 0);
+
+                // Draw the root console
+                _mainConsole.Draw();
+
                 _renderRequired = false;
             }
-
-            // Blit the sub consoles
-            RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _mainConsole, 0, _inventoryHeight);
-            RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _mainConsole, _mapWidth, 0);
-            RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight, _mainConsole, 0, _screenHeight - _messageHeight);
-            RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _mainConsole, 0, 0);
-
-            // Draw the dungeon map
-            DungeonMap.Draw(_mapConsole, _statConsole);
-
-            // Draw the player
-            Player.Draw(_mapConsole, DungeonMap);
-
-            // Draw the player's stats
-            Player.DrawStats(_statConsole);
-
-            // Draw the message log
-            MessageLog.Draw(_messageConsole);
-
-            // Draw the root console
-            _mainConsole.Draw();
-
-            // Set rendering required to false, since everything needed is rendered
-            //_renderRequired = false;
         }
     }
 }

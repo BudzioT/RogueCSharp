@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using RLNET;
@@ -144,6 +145,9 @@ namespace RogueGame.Core
             SetIsWalkable(player.X, player.Y, false);
             // Update player's FOV
             UpdatePlayerFOV();
+
+            // Add the player to schedule
+            Game.SchedulingSystem.Add(player);
         }
 
         // Add new monster to the map
@@ -152,6 +156,9 @@ namespace RogueGame.Core
             _monsters.Add(monster);
             // Set the tile that monster occupies to not walkable
             SetIsWalkable(monster.X, monster.Y, false);
+
+            // Add the monster to schedule
+            Game.SchedulingSystem.Add(monster);
         }
 
         // Get a random walkable location in a room
@@ -199,6 +206,9 @@ namespace RogueGame.Core
             _monsters.Remove(monster);
             // Set cell back to walkable
             SetIsWalkable(monster.X, monster.Y, true);
+
+            // Delete monster from the schedule
+            Game.SchedulingSystem.Remove(monster);
         }
 
         public Monster GetMonsterAt(int x, int y)
