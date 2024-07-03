@@ -46,11 +46,17 @@ namespace RogueGame
         // Command system
         public static CommandSystem CommandSystem { get; private set; }
 
+        // Message log
+        public static MessageLog MessageLog { get; private set; }
+
         // Dungeon map
         public static DungeonMap DungeonMap { get; private set; }
 
         // Player
-        public static Player Player { get; private set; }
+        public static Player Player { get; set; }
+
+        // Temp test message help variable
+        private static int _steps = 0;
 
 
         static void Main()
@@ -74,9 +80,10 @@ namespace RogueGame
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-            // Set Message console
-            _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DeepWater);
-            _messageConsole.Print(1, 1, "Messages", Colors.TextHeader);
+            // Set Message log
+            MessageLog = new MessageLog();
+            MessageLog.Add("First challange appears");
+            MessageLog.Add($"Level seed: '{seed}'");
 
             // Set Stats console
             _statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.OldStone);
@@ -91,14 +98,11 @@ namespace RogueGame
             // Set up handler for Render events
             _mainConsole.Update += OnRootConsoleRender;
 
-            // Create the player
-            Player = new Player();
-
             // Instantiate command system
             CommandSystem = new CommandSystem();
 
-            // Setup map generetor and create a new map
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
+            // Setup map generetor and create a new map with 20 max rooms with sizes from 7 to 13
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7);
             DungeonMap = mapGenerator.CreateMap();
             // Update player's FOV
             DungeonMap.UpdatePlayerFOV();
@@ -138,7 +142,11 @@ namespace RogueGame
 
             // If player acted, rendering is required
             if (playerAct)
+            {
+                MessageLog.Add($"Step #{++_steps}");
                 _renderRequired = true;
+            }
+                
         }
 
         // Handle Render events
@@ -159,6 +167,9 @@ namespace RogueGame
 
             // Draw the player
             Player.Draw(_mapConsole, DungeonMap);
+
+            // Draw the message log
+            MessageLog.Draw(_messageConsole);
 
             // Draw the root console
             _mainConsole.Draw();

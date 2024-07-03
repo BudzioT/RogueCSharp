@@ -54,10 +54,98 @@ namespace RogueGame.Systems
                 int roomHeight = Game.Random.Next(_roomMinSize, _roomMaxSize);
                 int roomPosX = Game.Random.Next(0, _width - roomWidth - 1);
                 int roomPosY = Game.Random.Next(0, _height - roomHeight - 1);
+                
+                // Create new room as a rectangle
+                var newRoom = new Rectangle(roomPosX, roomPosY, roomWidth, roomHeight);
+
+                // Check collisions with other rooms
+                bool newRoomCollisions = _map.Rooms.Any(room => newRoom.Intersects(room));
+
+                // If there are no collisions, add new room to the list
+                if (!newRoomCollisions)
+                    _map.Rooms.Add(newRoom);
             }
+
+            // Create all rooms from the newly created list
+            foreach (Rectangle room in _map.Rooms)
+                CreateRoom(room);
+
+            // Go through all the rooms generated starting from the second one
+            for (int roomNum = 1; roomNum < _map.Rooms.Count; roomNum++)
+            {
+                // Previous room center coordinates
+                int prevRoomCenterX = _map.Rooms[roomNum - 1].Center.X;
+                int prevRoomCenterY = _map.Rooms[roomNum - 1].Center.Y;
+
+                // Current room center coordinates
+                int currRoomCenterX = _map.Rooms[roomNum].Center.X;
+                int currRoomCenterY = _map.Rooms[roomNum].Center.Y;
+
+                // Generate a tunnel connecting previous and current room in shape of 'L', at random rotation
+                if (Game.Random.Next(1, 2) == 1)
+                {
+                    // Focus on the horizontal line first
+                    CreateHorizontalTunnel(prevRoomCenterX, currRoomCenterX, prevRoomCenterY);
+                    CreateVericalTunnel(prevRoomCenterY, currRoomCenterY, currRoomCenterX);
+                }
+                else
+                {
+                    // Focus on the vertical line first
+                    CreateVericalTunnel(prevRoomCenterY, currRoomCenterY, prevRoomCenterX);
+                    CreateHorizontalTunnel(prevRoomCenterX, currRoomCenterX, currRoomCenterY);
+                }
+            }
+
+            // Place the player in first of the newly created rooms
+            PlacePlayer();
 
             // Return the created map
             return _map;
+        }
+
+        // Create a room from rectangle, by setting all cells properties to true
+        private void CreateRoom(Rectangle room)
+        {
+            // Go through each row
+            for (int x = room.Left + 1; x < room.Right; x++)
+            {
+                // Go through each cell in a row and set its properties
+                for (int y = room.Top + 1; y < room.Bottom; y++)
+                    _map.SetCellProperties(x, y, true, true, true);
+            }
+        }
+
+        // Place the player on the map
+        private void PlacePlayer()
+        {
+            // Get the reference to the player
+            Player player = Game.Player;
+            // If he doesn't exist, create him
+            if (player == null)
+                player = new Player();
+
+            // Place him in the center of the first room
+            player.X = _map.Rooms[0].Center.X;
+            player.Y = _map.Rooms[0].Center.Y;
+
+            // Add the player to the game
+            _map.AddPlayer(player);
+        }
+
+        // Create a tunnel parallel to x-axis
+        private void CreateHorizontalTunnel(int startX, int endX, int posY)
+        {
+            // Go from the most left cell to the right one and create a tunnel
+            for (int x = Math.Min(startX, endX); x <= Math.Max(startX, endX); x++)
+                _map.SetCellProperties(x, posY, true, true);
+        }
+
+        // Create a tunnel parallel to the y-axis
+        private void CreateVericalTunnel(int startY, int endY, int posX)
+        {
+            // Go from the top cell to the bottom one and create a tunnel
+            for (int y = Math.Min(startY, endY); y <= Math.Max(startY, endY); y++)
+                _map.SetCellProperties(posX, y, true, true);
         }
     }
 }

@@ -115,5 +115,15 @@ namespace RogueGame.Core
             // Set its properties
             SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
         }
+
+        // Add player to the game
+        public void AddPlayer(Player player)
+        {
+            Game.Player = player;
+            // Set the cell that player is on as occupied
+            SetIsWalkable(player.X, player.Y, false);
+            // Update player's FOV
+            UpdatePlayerFOV();
+        }
     }
 }
