@@ -11,7 +11,7 @@ namespace RogueGame.Systems
     public class MessageLog
     {
         // Maxiumum number of stored lines
-        private static readonly int _maxLines = 9;
+        private static readonly int _maxLines = 7;
         // Messages, stored in queue to easily remove the oldest ones when it is full
         private readonly Queue<string> _lines;
 
@@ -35,9 +35,10 @@ namespace RogueGame.Systems
         public void Draw(RLConsole console)
         {
             string[] lines = _lines.ToArray();
+            int margin = 1;
             // Print all the messages
-            for (int i = 0; i < lines.Length; i++)
-                console.Print(1, i + 1, lines[i], RLColor.White);
+            for (int i = 0; i < lines.Length; i++, margin += 1)
+                console.Print(1, i + 1 + margin, lines[i], RLColor.White);
         }
     }
 }

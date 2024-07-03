@@ -131,17 +131,21 @@ namespace RogueGame
                 // Move right
                 else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
                     playerAct = CommandSystem.MovePlayer(Direction.Right);
+                _renderRequired = true;
             }
         }
 
         // Handle Render events
         private static void OnRootConsoleRender(object sender, UpdateEventArgs args)
         {
+            // If rendering is required, clear the old things
             if (_renderRequired)
+            {
+                //_mapConsole.Clear();
                 _statConsole.Clear();
-            //If rendering is not required, continue the game loop
-            //if (!_renderRequired)
-            //    return;
+                _messageConsole.Clear();
+                _renderRequired = false;
+            }
 
             // Blit the sub consoles
             RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _mainConsole, 0, _inventoryHeight);
@@ -165,7 +169,7 @@ namespace RogueGame
             _mainConsole.Draw();
 
             // Set rendering required to false, since everything needed is rendered
-            _renderRequired = false;
+            //_renderRequired = false;
         }
     }
 }
