@@ -19,6 +19,9 @@ namespace RogueGame.Core
         // Monsters that are generated at the dungeon map
         public readonly List<Monster> _monsters;
 
+        // Doors
+        public List<Door> Doors { get; set; }
+
         // Initialize the dungeon map
         public DungeonMap()
         {
@@ -26,6 +29,8 @@ namespace RogueGame.Core
             Rooms = new List<Rectangle>();
             // Initialize list of monsters
             _monsters = new List<Monster>();
+            // Initialize list of doors
+            Doors = new List<Door>();
         }
 
         // Draw all the symbols and colors to the map console
@@ -41,6 +46,12 @@ namespace RogueGame.Core
             foreach (Monster monster in _monsters)
             {
                 monster.Draw(mapConsole, this);
+            }
+
+            // Draw each doors that exists
+            foreach (Door door in Doors)
+            {
+                door.Draw(mapConsole, this);
             }
 
             // Index to help with placement of healthbars
@@ -117,6 +128,9 @@ namespace RogueGame.Core
 
                 // Set the actor's cell as not walkable (since he is on it)
                 SetIsWalkable(x, y, false);
+
+                // Try to open doors if there are any
+                OpenDoor(actor, x, y);
 
                 // Update the FOV, if actor is a player
                 if (actor is Player)
@@ -211,9 +225,33 @@ namespace RogueGame.Core
             Game.SchedulingSystem.Remove(monster);
         }
 
+        // Return monster at given postion or null if there isn't any
         public Monster GetMonsterAt(int x, int y)
         {
             return _monsters.FirstOrDefault(m => m.X == x && m.Y == y);
+        }
+
+
+        private void OpenDoor(Actor actor, int x, int y)
+        {
+            // Try to get doors at given position, if there are one, open them
+            Door door = GetDoor(x, y);
+            if (door != null && !door.Open) 
+            {
+                // Open the doors
+                door.Open = true;
+                var cell = GetCell(x, y);
+                // Once doors are opened, make them transparent and not block FOV anymore
+                SetCellProperties(x, y, true, cell.IsWalkable, cell.IsExplored);
+
+                Game.MessageLog.Add($"{actor.Name} kicked through the doors!");
+            }
+        }
+
+        // Return doors in located position, or null if there's none
+        public Door GetDoor(int x, int y)
+        {
+            return Doors.SingleOrDefault(door => door.X == x || door.Y == y);
         }
     }
 }

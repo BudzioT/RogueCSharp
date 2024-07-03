@@ -181,5 +181,28 @@ namespace RogueGame.Systems
                 }
             }
         }
+
+        // Create doors in all places that are available
+        private void CreateDoors(Rectangle room)
+        {
+            // The room dimensions
+            int xMin = room.Left;
+            int xMax = room.Right;
+            int yMin = room.Top;
+            int yMax = room.Bottom;
+
+            // Put rooms borders into a list
+            List<ICell> borderCells = _map.GetCellsAlongLine(xMin, yMin, xMax, yMin).ToList();
+            borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMin, xMin, yMax));
+            borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMax, xMax, yMax));
+            borderCells.AddRange(_map.GetCellsAlongLine(xMax, yMin, xMax, yMax));
+
+            // Go through each of the room borders, look for a place to put the doors
+            foreach (Cell cell in borderCells)
+            {
+
+            }
+
+        }
     }
 }

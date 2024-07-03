@@ -82,7 +82,7 @@ namespace RogueGame.Behaviours
                 // Increase alerted count
                 monster.Alerted++;
                 // If monster is alerted for more than 13 turns, make him stop
-                if (monster.Alerted > 13)
+                if (monster.Alerted > 16)
                 {
                     monster.Alerted = null;
                 }

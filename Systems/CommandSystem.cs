@@ -182,7 +182,7 @@ namespace RogueGame.Systems
         }
 
         // Move the monster, attack if it is possible
-        public void MoveMonster(Monster monster, Cell cell)
+        public void MoveMonster(Monster monster, ICell cell)
         {
             // If monster can't move anymore
             if (!Game.DungeonMap.SetActorPosition(monster, cell.X, cell.Y))
