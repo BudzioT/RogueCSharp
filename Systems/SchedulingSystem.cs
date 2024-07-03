@@ -36,6 +36,52 @@ namespace RogueGame.Systems
             _schedules[time].Add(schedule);
         }
 
+        // Remove a schedule from list
+        public void Remove(IScheduable schedule)
+        {
+            KeyValuePair<int, List<IScheduable>> scheduableList = new KeyValuePair<int, List<IScheduable>>(-1, null);
+
+            // Go through each schedule
+            foreach (var scheduleList in _schedules)
+            {
+                // If it contains the argument, save it
+                if (scheduleList.Value.Contains(schedule))
+                {
+                    scheduableList = scheduleList;
+                    break;
+                }
+            }
+
+            // If there was argument found before, remove it
+            if (scheduableList.Value != null)
+            {
+                scheduableList.Value.Remove(schedule);
+                // If there are no more schedules at this time, remove the entry
+                if (scheduableList.Value.Count <= 0)
+                    _schedules.Remove(scheduableList.Key);
+            }
+        }
+
+        // Get the next object on a schedule, advance time if needed
+        public IScheduable Get()
+        {
+            // Get the first object
+            var firstScheduleGroup = _schedules.First();
+            var firstSchedule = firstScheduleGroup.Value.First();
+
+            // Remove it from schedules and increase time
+            Remove(firstSchedule);
+            _time = firstScheduleGroup.Key;
+            return firstSchedule;
+        }
+
+        // Reset the time, clear any schedules
+        public void Clear()
+        {
+            _time = 0;
+            _schedules.Clear();
+        }
+
         // Get current time
         public int GetTime()
         {

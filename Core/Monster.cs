@@ -1,4 +1,6 @@
 ﻿using RLNET;
+using RogueGame.Behaviours;
+using RogueGame.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,9 @@ namespace RogueGame.Core
     // Monster class
     public class Monster : Actor
     {
+        // Enemy aware of player flag
+        public int? Alerted { get; set; }
+
         public void DrawStats(RLConsole statConsole, int position)
         {
             // Start drawing below the player stats, create a margin between stats
@@ -28,6 +33,13 @@ namespace RogueGame.Core
 
             // Draw its name before the healthbar
             statConsole.Print(2, posY, $": {Name}", Swatch.Light);
+        }
+
+        // Perform action
+        public void PerformAction(CommandSystem cmdSystem)
+        {
+            var behaviour = new BasicMoveAttack();
+            behaviour.Act(this, cmdSystem);
         }
     }
 }
