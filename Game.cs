@@ -38,6 +38,9 @@ namespace RogueGame
         // Dungeon map
         public static DungeonMap DungeonMap { get; private set; }
 
+        // Player
+        public static Player Player { get; private set; }
+
 
         static void Main()
         {
@@ -55,26 +58,6 @@ namespace RogueGame
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-            // Setup handler for Update events
-            _mainConsole.Update += OnRootConsoleUpdate;
-            // Set up handler for Render events
-            _mainConsole.Update += OnRootConsoleRender;
-
-            // Setup map generetor and create a new map
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
-
-            // Begin the game loop
-            _mainConsole.Run();
-        }
-
-
-        // Handle Update events
-        private static void OnRootConsoleUpdate(object sender, UpdateEventArgs args)
-        {
-            // Set Main console
-            _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
-            _mainConsole.Print(1, 1, "Map", Colors.TextHeader);
-
             // Set Message console
             _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DeepWater);
             _messageConsole.Print(1, 1, "Messages", Colors.TextHeader);
@@ -86,6 +69,30 @@ namespace RogueGame
             // Set inventory console
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.Wood);
             _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeader);
+
+            // Setup handler for Update events
+            _mainConsole.Update += OnRootConsoleUpdate;
+            // Set up handler for Render events
+            _mainConsole.Update += OnRootConsoleRender;
+
+            // Create the player
+            Player = new Player();
+
+            // Setup map generetor and create a new map
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
+            DungeonMap = mapGenerator.CreateMap();
+            // Update player's FOV
+            DungeonMap.UpdatePlayerFOV();
+
+            // Begin the game loop
+            _mainConsole.Run();
+        }
+
+
+        // Handle Update events
+        private static void OnRootConsoleUpdate(object sender, UpdateEventArgs args)
+        {
+            
         }
 
         // Handle Render events
@@ -96,6 +103,12 @@ namespace RogueGame
             RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _mainConsole, _mapWidth, 0);
             RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight, _mainConsole, 0, _screenHeight - _messageHeight);
             RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _mainConsole, 0, 0);
+
+            // Draw the dungeon map
+            DungeonMap.Draw(_mapConsole);
+
+            // Draw the player
+            Player.Draw(_mapConsole, DungeonMap);
 
             // Draw the root console
             _mainConsole.Draw();

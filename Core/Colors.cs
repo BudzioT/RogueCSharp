@@ -26,5 +26,8 @@ namespace RogueGame.Core
 
         // Text colors
         public static RLColor TextHeader = Swatch.Light;
+
+        // Player color
+        public static RLColor Player = Swatch.Light;
     }
 }

@@ -54,5 +54,43 @@ namespace RogueGame.Core
                     mapConsole.Set(cell.X, cell.Y, Colors.Wall, Colors.WallBackground, '#');
             }
         }
+
+        // Update player's FOV when moving him
+        public void UpdatePlayerFOV()
+        {
+            // Reference to game's player
+            Player player = Game.Player;
+
+            // Calculate the FOV based off location and awareness
+            ComputeFov(player.X, player.Y, player.Awareness, true);
+
+            // Re-mark cells as explored, when they are in FOV
+            foreach (Cell cell in GetAllCells())
+            {
+                if (IsInFov(cell.X, cell.Y))
+                    SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, true);
+            }
+        }
+
+        // Place the actor on the cell, return if the action was succesful
+        public bool SetActorPosition(Actor actor, int x, int y)
+        {
+            // Place the actor only when cell is walkable
+            if (GetCell(x, y).IsWalkable)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        // Set the IsWalkable property on a cell
+        public void SetIsWalkable(int x, int y, bool isWalkable)
+        {
+            // Get the cell by position
+            Cell cell = GetCell(x, y);
+            // Set its properties
+            SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
+        }
     }
 }
