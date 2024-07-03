@@ -1,7 +1,12 @@
 ﻿using RLNET;
 
+using RogueGame.Core;
+using RogueGame.Systems;
+
+
 namespace RogueGame
 {
+    
     public class Game
     {
         // Screen width and height in number of tiles
@@ -30,6 +35,9 @@ namespace RogueGame
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
 
+        // Dungeon map
+        public static DungeonMap DungeonMap { get; private set; }
+
 
         static void Main()
         {
@@ -47,10 +55,13 @@ namespace RogueGame
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
 
-            // Set up handler for Update events
+            // Setup handler for Update events
             _mainConsole.Update += OnRootConsoleUpdate;
             // Set up handler for Render events
             _mainConsole.Update += OnRootConsoleRender;
+
+            // Setup map generetor and create a new map
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight);
 
             // Begin the game loop
             _mainConsole.Run();
@@ -61,20 +72,20 @@ namespace RogueGame
         private static void OnRootConsoleUpdate(object sender, UpdateEventArgs args)
         {
             // Set Main console
-            _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, RLColor.Black);
-            _mainConsole.Print(1, 1, "Map", RLColor.White);
+            _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
+            _mainConsole.Print(1, 1, "Map", Colors.TextHeader);
 
             // Set Message console
-            _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, RLColor.Gray);
-            _messageConsole.Print(1, 1, "Messages", RLColor.White);
+            _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DeepWater);
+            _messageConsole.Print(1, 1, "Messages", Colors.TextHeader);
 
             // Set Stats console
-            _statConsole.SetBackColor(0, 0, _statWidth, _statHeight, RLColor.Brown);
-            _statConsole.Print(1, 1, "Stats", RLColor.White);
+            _statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.OldStone);
+            _statConsole.Print(1, 1, "Stats", Colors.TextHeader);
 
             // Set inventory console
-            _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, RLColor.Blue);
-            _inventoryConsole.Print(1, 1, "Inventory", RLColor.White);
+            _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.Wood);
+            _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeader);
         }
 
         // Handle Render events
