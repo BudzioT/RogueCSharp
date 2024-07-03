@@ -15,11 +15,16 @@ namespace RogueGame.Core
         // Rooms of dungeon as rectangles
         public List<Rectangle> Rooms;
 
+        // Monsters that are generated at the dungeon map
+        public readonly List<Monster> _monsters;
+
         // Initialize the dungeon map
         public DungeonMap()
         {
             // Initialize list of rooms
             Rooms = new List<Rectangle>();
+            // Initialize list of monsters
+            _monsters = new List<Monster>();
         }
 
         // Draw all the symbols and colors to the map console
@@ -124,6 +129,35 @@ namespace RogueGame.Core
             SetIsWalkable(player.X, player.Y, false);
             // Update player's FOV
             UpdatePlayerFOV();
+        }
+
+        // Add new monster to the map
+        public void AddMonster(Monster monster)
+        {
+            _monsters.Add(monster);
+            // Set the tile that monster occupies to not walkable
+            SetIsWalkable(monster.X, monster.Y, false);
+        }
+
+        // Get a random walkable location in a room
+        public Point GetRandomWalkableLocation(Rectangle room)
+        {
+            if (IsRoomWalkable(room))
+            {
+
+            }
+        }
+
+        // Return if the room is walkable
+        public bool isRoomWalkable(Rectangle room)
+        {
+            for (int x = 1; x <= room.Width - 2; x++)
+            {
+                for (int y = 1; y <= room.Height - 2; y++)
+                {
+
+                }
+            }
         }
     }
 }

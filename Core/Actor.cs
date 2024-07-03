@@ -13,8 +13,146 @@ namespace RogueGame.Core
     public class Actor : IActor, IDrawable
     {
         // IActor variables
-        public string Name { get; set; }
-        public int Awareness { get; set; }
+        private string _name;
+        private int _awareness;
+        private int _attack;
+        private int _attackChance;
+        private int _defense;
+        private int _defenseChance;
+        private int _health;
+        private int _maxHealth;
+        private int _speed;
+        private int _gold;
+
+        public string Name
+        {
+            get
+            {
+                return _name;
+            }
+
+            set
+            {
+                _name = value;
+            }
+        }
+
+        public int Awareness
+        {
+            get
+            {
+                return _awareness;
+            }
+
+            set
+            {
+                _awareness = value;
+            }
+        }
+
+        public int Attack
+        {
+            get
+            {
+                return _attack;
+            }
+
+            set
+            {
+                _attack = value;
+            }
+        }
+
+        public int AttackChance
+        {
+            get
+            {
+                return _attackChance;
+            }
+
+            set
+            {
+                _attackChance = value;
+            }
+        }
+
+        public int Defense
+        {
+            get
+            {
+                return _defense;
+            }
+
+            set
+            {
+                _defense = value;
+            }
+        }
+
+        public int DefenseChance
+        {
+            get
+            {
+                return _defenseChance;
+            }
+
+            set
+            {
+                _defenseChance = value;
+            }
+        }
+
+        public int Health
+        {
+            get
+            {
+                return _health;
+            }
+
+            set
+            {
+                _health = value;
+            }
+        }
+
+        public int MaxHealth
+        {
+            get
+            {
+                return _maxHealth;
+            }
+
+            set
+            {
+                _maxHealth = value;
+            }
+        }
+
+        public int Speed
+        {
+            get
+            {
+                return _speed;
+            }
+
+            set
+            {
+                _speed = value;
+            }
+        }
+        
+        public int Gold
+        {
+            get
+            {
+                return _gold;
+            }
+
+            set
+            {
+                _gold = value;
+            }
+        }
 
         // IDrawable variables
         public RLColor Color { get; set; }

@@ -19,5 +19,12 @@ namespace RogueGame.Interfaces
         // Defense variables
         int Defense { get; set; }
         int DefenseChance { get; set; }
+        // Health variables
+        int Health { get; set; }
+        int MaxHealth { get; set; }
+        // Speed of an actor
+        int Speed { get; set; }
+        // Amount of gold
+        int Gold { get; set; }
     }
 }

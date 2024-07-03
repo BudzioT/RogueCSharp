@@ -55,9 +55,6 @@ namespace RogueGame
         // Player
         public static Player Player { get; set; }
 
-        // Temp test message help variable
-        private static int _steps = 0;
-
 
         static void Main()
         {
@@ -84,10 +81,6 @@ namespace RogueGame
             MessageLog = new MessageLog();
             MessageLog.Add("First challange appears");
             MessageLog.Add($"Level seed: '{seed}'");
-
-            // Set Stats console
-            _statConsole.SetBackColor(0, 0, _statWidth, _statHeight, Swatch.OldStone);
-            _statConsole.Print(1, 1, "Stats", Colors.TextHeader);
 
             // Set inventory console
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.Wood);
@@ -139,22 +132,14 @@ namespace RogueGame
                 else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
                     playerAct = CommandSystem.MovePlayer(Direction.Right);
             }
-
-            // If player acted, rendering is required
-            if (playerAct)
-            {
-                MessageLog.Add($"Step #{++_steps}");
-                _renderRequired = true;
-            }
-                
         }
 
         // Handle Render events
         private static void OnRootConsoleRender(object sender, UpdateEventArgs args)
         {
             // If rendering is not required, continue the game loop
-            if (!_renderRequired)
-                return;
+            //if (!_renderRequired)
+            //    return;
 
             // Blit the sub consoles
             RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _mainConsole, 0, _inventoryHeight);
@@ -167,6 +152,9 @@ namespace RogueGame
 
             // Draw the player
             Player.Draw(_mapConsole, DungeonMap);
+
+            // Draw the player's stats
+            Player.DrawStats(_statConsole);
 
             // Draw the message log
             MessageLog.Draw(_messageConsole);

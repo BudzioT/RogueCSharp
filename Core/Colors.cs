@@ -25,9 +25,14 @@ namespace RogueGame.Core
         public static RLColor WallFov = Swatch.Secondary[1];
 
         // Text colors
-        public static RLColor TextHeader = Swatch.Light;
+        public static RLColor TextHeader = RLColor.White;
+        public static RLColor Text = Swatch.Light;
+        public static RLColor Gold = Swatch.Sun;
 
         // Player color
         public static RLColor Player = Swatch.Light;
+
+        // Enemies colors
+        public static RLColor KEnemy = Swatch.Metal;
     }
 }
