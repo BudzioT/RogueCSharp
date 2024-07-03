@@ -7,9 +7,29 @@ namespace RogueGame
         // Screen width and height in number of tiles
         private static readonly int _screenWidth = 100;
         private static readonly int _screenHeight = 70;
+        // Create RLNET main console
+        private static RLRootConsole _mainConsole;
 
-        // Create RLNET console
-        private static RLRootConsole _rootConsole;
+        // Part of the screen with the map
+        private static readonly int _mapWidth = 80;
+        private static readonly int _mapHeight = 48;
+        private static RLConsole _mapConsole;
+
+        // Message console for attack rolls and more (below the map)
+        private static readonly int _messageWidth = 80;
+        private static readonly int _messageHeight = 11;
+        private static RLConsole _messageConsole;
+
+        // Statistics console (right of the map)
+        private static readonly int _statWidth = 20;
+        private static readonly int _statHeight = 70;
+        private static RLConsole _statConsole;
+
+        // Inventory console (above the map)
+        private static readonly int _inventoryWidth = 80;
+        private static readonly int _inventoryHeight = 11;
+        private static RLConsole _inventoryConsole;
+
 
         static void Main()
         {
@@ -18,30 +38,56 @@ namespace RogueGame
             // Title of the game
             string consoleTitle = "Rogue Game C#";
             // Initialize the main console using main font with size 8x8, scale 1
-            _rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight,
+            _mainConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight,
                 8, 8, 1f, consoleTitle);
 
+            // Initialize other parts of screen, draw them
+            _mapConsole = new RLConsole(_mapWidth, _mapHeight);
+            _messageConsole = new RLConsole(_messageWidth, _messageHeight);
+            _statConsole = new RLConsole(_statWidth, _statHeight);
+            _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
+
             // Set up handler for Update events
-            _rootConsole.Update += OnRootConsoleUpdate;
+            _mainConsole.Update += OnRootConsoleUpdate;
             // Set up handler for Render events
-            _rootConsole.Update += OnRootConsoleRender;
+            _mainConsole.Update += OnRootConsoleRender;
 
             // Begin the game loop
-            _rootConsole.Run();
+            _mainConsole.Run();
         }
 
 
         // Handle Update events
         private static void OnRootConsoleUpdate(object sender, UpdateEventArgs args)
         {
-            _rootConsole.Print(10, 10, "Worked", RLColor.White);
+            // Set Main console
+            _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, RLColor.Black);
+            _mainConsole.Print(1, 1, "Map", RLColor.White);
+
+            // Set Message console
+            _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, RLColor.Gray);
+            _messageConsole.Print(1, 1, "Messages", RLColor.White);
+
+            // Set Stats console
+            _statConsole.SetBackColor(0, 0, _statWidth, _statHeight, RLColor.Brown);
+            _statConsole.Print(1, 1, "Stats", RLColor.White);
+
+            // Set inventory console
+            _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, RLColor.Blue);
+            _inventoryConsole.Print(1, 1, "Inventory", RLColor.White);
         }
 
         // Handle Render events
         private static void OnRootConsoleRender(object sender, UpdateEventArgs args)
         {
+            // Blit the sub consoles
+            RLConsole.Blit(_mapConsole, 0, 0, _mapWidth, _mapHeight, _mainConsole, 0, _inventoryHeight);
+            RLConsole.Blit(_statConsole, 0, 0, _statWidth, _statHeight, _mainConsole, _mapWidth, 0);
+            RLConsole.Blit(_messageConsole, 0, 0, _messageWidth, _messageHeight, _mainConsole, 0, _screenHeight - _messageHeight);
+            RLConsole.Blit(_inventoryConsole, 0, 0, _inventoryWidth, _inventoryHeight, _mainConsole, 0, 0);
+
             // Draw the root console
-            _rootConsole.Draw();
+            _mainConsole.Draw();
         }
     }
 }
