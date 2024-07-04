@@ -41,7 +41,7 @@ namespace RogueGame.Core
             if (!map.GetCell(X, Y).IsExplored)
                 return;
             // Set the symbol depending on whether doors are open
-            Symbol = Open ? '/' : '|';
+            Symbol = Open ? '-' : '+';
 
             // If doors are in player's FOV, set them in FOV colors
             if (map.IsInFov(X, Y))
@@ -56,7 +56,6 @@ namespace RogueGame.Core
                 BgColor = Colors.DoorBackground;
             }
 
-            // Draw the doors
             console.Set(X, Y, Color, BgColor, Symbol);
         }
     }

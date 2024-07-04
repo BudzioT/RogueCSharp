@@ -166,7 +166,9 @@ namespace RogueGame.Systems
         {
             // If player died, write a message
             if (defender is Player)
+            {
                 Game.MessageLog.Add($"  {defender.Name}... It's sad to watch...");
+            }
             // Otherwise, if monster died, remove it
             else if (defender is Monster)
             {
@@ -182,7 +184,7 @@ namespace RogueGame.Systems
         }
 
         // Move the monster, attack if it is possible
-        public void MoveMonster(Monster monster, ICell cell)
+        public void MoveMonster(Monster monster, Cell cell)
         {
             // If monster can't move anymore
             if (!Game.DungeonMap.SetActorPosition(monster, cell.X, cell.Y))

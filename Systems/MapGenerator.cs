@@ -28,7 +28,7 @@ namespace RogueGame.Systems
         private readonly DungeonMap _map;
 
         // Initialize dimensions and create a new map
-        public MapGenerator(int width, int height, int maxRooms, int roomMaxSize, int roomMinSize)
+        public MapGenerator(int width, int height, int maxRooms, int roomMaxSize, int roomMinSize, int level)
         {
             // Set dimensions of the map
             _width = width;
@@ -70,7 +70,11 @@ namespace RogueGame.Systems
 
             // Create all rooms from the newly created list
             foreach (Rectangle room in _map.Rooms)
+            {
                 CreateRoom(room);
+                // Place the doors
+                CreateDoors(room);
+            }
 
             // Go through all the rooms generated starting from the second one
             for (int roomNum = 1; roomNum < _map.Rooms.Count; roomNum++)
@@ -97,6 +101,9 @@ namespace RogueGame.Systems
                     CreateHorizontalTunnel(prevRoomCenterX, currRoomCenterX, currRoomCenterY);
                 }
             }
+
+            // Create stairs
+            CreateStairs();
 
             // Place the player in first of the newly created rooms
             PlacePlayer();
@@ -168,13 +175,13 @@ namespace RogueGame.Systems
                     for (int i = 0; i < numberOfMonsters; i++)
                     {
                         // Get random walkable location to place the enemy at
-                        Point? randomRoomLocation = _map.GetRandomWalkableLocation(room);
+                        Point randomRoomLocation = _map.GetRandomWalkableLocation(room);
                         // If getting random location was succesful, add the enemy to this location
-                        if (randomRoomLocation.HasValue)
+                        if (randomRoomLocation != null)
                         {
                             var monster = KEnemy.Create(1);
-                            monster.X = randomRoomLocation.Value.X;
-                            monster.Y = randomRoomLocation.Value.Y;
+                            monster.X = randomRoomLocation.X;
+                            monster.Y = randomRoomLocation.Y;
                             _map.AddMonster(monster);
                         }
                     }
@@ -192,7 +199,7 @@ namespace RogueGame.Systems
             int yMax = room.Bottom;
 
             // Put rooms borders into a list
-            List<ICell> borderCells = _map.GetCellsAlongLine(xMin, yMin, xMax, yMin).ToList();
+            List<Cell> borderCells = _map.GetCellsAlongLine(xMin, yMin, xMax, yMin).ToList();
             borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMin, xMin, yMax));
             borderCells.AddRange(_map.GetCellsAlongLine(xMin, yMax, xMax, yMax));
             borderCells.AddRange(_map.GetCellsAlongLine(xMax, yMin, xMax, yMax));
@@ -200,9 +207,54 @@ namespace RogueGame.Systems
             // Go through each of the room borders, look for a place to put the doors
             foreach (Cell cell in borderCells)
             {
-
+                // If there is a place to put doors, place them
+                if (PotentialDoor(cell))
+                {
+                    // Set the cell to not transparent and to walkable
+                    _map.SetCellProperties(cell.X, cell.Y, false, true);
+                    // Add them
+                    _map.Doors.Add(new Door { X = cell.X, Y = cell.Y, Open = false });
+                }
             }
 
+        }
+
+        // Check if a cell is good for placing doors
+        private bool PotentialDoor(Cell cell)
+        {
+            // If cell isn't walkable, can't place the doors (it's a wall)
+            if (!cell.IsWalkable)
+                return false;
+
+            // Locations of near tiles
+            Cell nearLeft = _map.GetCell(cell.X - 1, cell.Y);
+            Cell nearRight = _map.GetCell(cell.X + 1, cell.Y);
+            Cell nearTop = _map.GetCell(cell.X, cell.Y - 1);
+            Cell nearBottom = _map.GetCell(cell.X, cell.Y + 1);
+
+            // Check if there are already doors in near, if so, doors can't be placed again
+            if ((_map.GetDoor(cell.X, cell.Y) != null) || (_map.GetDoor(nearLeft.X, nearLeft.Y) != null)
+                || (_map.GetDoor(nearRight.X, nearRight.Y) != null) || (_map.GetDoor(nearTop.X, nearTop.Y) != null)
+                || (_map.GetDoor(nearBottom.X, nearBottom.Y) != null))
+            {
+                return false;
+            }
+
+            // If horizontal tiles are walls, but vertical not, place the doors between them
+            if (nearTop.IsWalkable && nearBottom.IsWalkable && !nearRight.IsWalkable && !nearBottom.IsWalkable)
+                return true;
+
+            // If horizontal tiles aren't walls and vertical ones are, place the doors between them
+            if (nearRight.IsWalkable && nearLeft.IsWalkable && !nearTop.IsWalkable && !nearBottom.IsWalkable)
+                return true;
+
+            return false;
+        }
+
+        public void CreateStairs()
+        {
+            _map.StairsUp = new Stairs { X = _map.Rooms.First().Center.X + 1, Y = _map.Rooms.First().Center.Y, Up = true };
+            _map.StairsDown = new Stairs { X = _map.Rooms.Last().Center.X, Y = _map.Rooms.Last().Center.Y, Up = false };
         }
     }
 }

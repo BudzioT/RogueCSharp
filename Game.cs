@@ -37,6 +37,9 @@ namespace RogueGame
         private static readonly int _inventoryHeight = 11;
         private static RLConsole _inventoryConsole;
 
+        // Current level
+        private static int _mapLevel = 1;
+
         // New render required flag
         private static bool _renderRequired = true;
 
@@ -69,7 +72,7 @@ namespace RogueGame
             // Main font file name
             string fontFileName = "font8x8.png";
             // Title of the game
-            string consoleTitle = $"Rogue Game C# (Seed: {seed})";
+            string consoleTitle = $"Rogue Game C# (Level: {_mapLevel}) ; (Seed: {seed})";
             // Initialize the main console using main font with size 8x8, scale 1
             _mainConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight,
                 8, 8, 1f, consoleTitle);
@@ -101,7 +104,7 @@ namespace RogueGame
             CommandSystem = new CommandSystem();
 
             // Setup map generetor and create a new map with 20 max rooms with sizes from 7 to 13
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7);
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7, _mapLevel);
             DungeonMap = mapGenerator.CreateMap();
             // Update player's FOV
             DungeonMap.UpdatePlayerFOV();
@@ -140,6 +143,22 @@ namespace RogueGame
                     // Move right
                     else if (keyPress.Key == RLKey.Right || keyPress.Key == RLKey.D)
                         playerAct = CommandSystem.MovePlayer(Direction.Right);
+                    // On period or Z, move to the next level
+                    else if (keyPress.Key == RLKey.Period || keyPress.Key == RLKey.Z)
+                    {
+                        // When player is at stairs position, move him to the next level and generate one
+                        if (DungeonMap.MoveDownNext())
+                        {
+                            // Generate new map
+                            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapHeight, 20, 13, 7, ++_mapLevel);
+                            DungeonMap = mapGenerator.CreateMap();
+                            // Reload add components
+                            MessageLog = new MessageLog();
+                            CommandSystem = new CommandSystem();
+                            _mainConsole.Title = $"Rogue Game C# (Level: {_mapLevel})";
+                            playerAct = true;
+                        }
+                    }
                 }
 
                 if (playerAct)
@@ -163,6 +182,7 @@ namespace RogueGame
             if (_renderRequired)
             {
                 // Clear the old things
+                _mainConsole.Clear();
                 _mapConsole.Clear();
                 _statConsole.Clear();
                 _messageConsole.Clear();

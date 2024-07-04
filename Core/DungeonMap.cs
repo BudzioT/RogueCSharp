@@ -22,9 +22,15 @@ namespace RogueGame.Core
         // Doors
         public List<Door> Doors { get; set; }
 
+        // Stairs
+        public Stairs StairsUp { get; set; }
+        public Stairs StairsDown { get; set; }
+
         // Initialize the dungeon map
         public DungeonMap()
         {
+            // Cleat the schedule
+            Game.SchedulingSystem.Clear();
             // Initialize list of rooms
             Rooms = new List<Rectangle>();
             // Initialize list of monsters
@@ -53,6 +59,10 @@ namespace RogueGame.Core
             {
                 door.Draw(mapConsole, this);
             }
+
+            // Draw the stairs
+            StairsUp.Draw(mapConsole, this);
+            StairsDown.Draw(mapConsole, this);
 
             // Index to help with placement of healthbars
             int i = 0;
@@ -252,6 +262,13 @@ namespace RogueGame.Core
         public Door GetDoor(int x, int y)
         {
             return Doors.SingleOrDefault(door => door.X == x || door.Y == y);
+        }
+
+        // Move down, if player is at the location of the down stairs
+        public bool MoveDownNext()
+        {
+            Player player = Game.Player;
+            return StairsDown.X == player.X && StairsDown.Y == player.Y;
         }
     }
 }
