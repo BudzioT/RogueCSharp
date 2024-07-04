@@ -1,4 +1,4 @@
-# Pytformer
+# Rogue Game
 ## :computer: Info
 This is a Rogue Game made in C# with RogueSharp, RogueGame libraries. <br>It's got enemy movement, mini combat system and random map generator.
 
